@@ -4,24 +4,8 @@ import { Ctx, Hears, InjectBot, Message, On, Start, Update } from 'nestjs-telegr
 import { Telegraf } from 'telegraf';
 import { TelebotService } from './telebot.service';
 import { Context } from './context.interface';
-
-const todos = [
-	{
-		id: 1,
-		name: 'Buy eggs',
-		isCompleted: false,
-	},
-	{
-		id: 2,
-		name: 'Read book',
-		isCompleted: false,
-	},
-	{
-		id: 3,
-		name: 'Learn eng',
-		isCompleted: true,
-	}
-]
+import { Button } from './telebot.buttons';
+import { runInThisContext } from 'vm';
 
 @Update()
 export class TelebotUpdate {
@@ -35,28 +19,43 @@ export class TelebotUpdate {
 		this.telebotService.start(ctx)
 	}
 	
-	@Hears('TO-DO list')
-	async getAll(ctx: Context){
-		this.telebotService.getAll(ctx)
+	@Hears(Button.WEATHER_NOW)
+	async weatherNow(ctx: Context){
+		this.telebotService.weatherNow(ctx)
 	}
 
-	@Hears('Edit')
-	async editTask(ctx: Context){
-		this.telebotService.editTask(ctx)
+	@Hears(Button.WEATHER_HERE)
+	async weatherNowInLocation(ctx: Context){
+		this.telebotService.weatherNowInLocation(ctx)
 	}
 
-	@Hears('Complete')
-	async completeTask(ctx: Context){
-		this.telebotService.completeTask(ctx)
+	@Hears('/help')
+	async helpHandler(ctx: Context){
+		this.telebotService.helpHandler(ctx)
 	}
 
-	@Hears('Remove')
-	async removeTask(ctx: Context){
-		this.telebotService.removeTask(ctx)
-	}
+	// @Hears('Edit')
+	// async editTask(ctx: Context){
+	// 	this.telebotService.editTask(ctx)
+	// }
+
+	// @Hears('Complete')
+	// async completeTask(ctx: Context){
+	// 	this.telebotService.completeTask(ctx)
+	// }
+
+	// @Hears('Remove')
+	// async removeTask(ctx: Context){
+	// 	this.telebotService.removeTask(ctx)
+	// }
 
 	@On('text')
-	async getMessage(@Message('text') message:string, @Ctx() ctx: Context){
-		this.telebotService.getMessage(Number(message), ctx)
+	async getMessage(@Message('text') message, @Ctx() ctx: Context){
+		await this.telebotService.MessageHandler(message, ctx)
+	}
+
+	@On('location')
+	async locationHandling(@Ctx() ctx: Context){
+		await this.telebotService.locationHandler(ctx)
 	}
 }
