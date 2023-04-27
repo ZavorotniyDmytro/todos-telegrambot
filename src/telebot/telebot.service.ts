@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { IWeatherData, WeatherService } from 'src/weather/weather.service';
 import { Message } from 'telegraf/typings/core/types/typegram';
 import { Context } from './context.interface';
 import { actionButtons } from './telebot.buttons';
 
 @Injectable()
 export class TelebotService {
-	
+	constructor(private readonly weatherService: WeatherService){}
 
 	async start(ctx: Context){
 		await ctx.reply(`Hello. Let me help you`, actionButtons().oneTime())
@@ -72,13 +73,25 @@ export class TelebotService {
 	}
 
 	private async weatherNow(town: string): Promise<string>{		
-		//todo OpenWeather logic
-		return town
+		const data: IWeatherData = await this.weatherService.getWeatherByCityName(town)
+		return this.weatherMessage(data)
 	}
 
 	private async weatherByLocation(latitude: number, longitude: number): Promise<string>{		
-		//todo OpenWeather logic		
-		return `latitude = ${latitude}, longitude = ${longitude}`
+		const data: IWeatherData = await this.weatherService.getWeatherByLocation(latitude, longitude)		
+		return this.weatherMessage(data)
+	}
+
+	private weatherMessage(data: IWeatherData):string{
+		const sunrise = new Date(data.sunrise*1000)
+		const sunset = new Date(data.sunset*1000)
+		return `In ${data.name}:\n
+		Weather: ${data.weather} - ${data.weather_description}
+		Temperature - ${data.temp}°C
+		Feels like - ${data.feels_like}°C
+		Pressure - ${data.pressure} Pa
+		Sunrise - ${sunrise.getHours()+':'+sunrise.getMinutes()+', '+sunrise.toDateString()}
+		Sunset - ${sunset.getHours()+':'+sunset.getMinutes()+', '+sunset.toDateString()}`
 	}
 
 	private async weatherForecastToday(town: string): Promise<string>{
