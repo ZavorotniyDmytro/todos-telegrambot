@@ -45,7 +45,7 @@ export class TelebotUpdate {
 
 	@Hears(Button.AIR_QUALITY)
 	async weatherAirQuality(ctx: Context){
-		ctx.session.type = 'week'
+		ctx.session.type = 'air'
 		this.telebotService.askTown(ctx)
 	}
 

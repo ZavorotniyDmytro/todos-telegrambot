@@ -105,3 +105,8 @@ dist
 
 # Environment
 *.env
+
+# telegram session
+session_db.json
+session_db.json
+session_db.json

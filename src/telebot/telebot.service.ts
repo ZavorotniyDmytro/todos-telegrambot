@@ -34,18 +34,29 @@ export class TelebotService {
 		// ctx.reply()
 	}
 
-	async messageHandler(message, ctx: Context){
-		if (!ctx.session.type) return
+	async messageHandler(message: string, ctx: Context){
+		if (!ctx.session.type) 
+			await ctx.reply(await this.weatherNow(message), actionButtons())
 
-		if (ctx.session.type === 'current'){
-			await ctx.reply(await this.weatherNow(message))			
+		if (ctx.session.type === 'current')
+			await ctx.reply(await this.weatherNow(message), actionButtons())				
+
+		if (ctx.session.type === 'today')
+			await ctx.reply(await this.weatherForecastToday(message), actionButtons())			
+
+		if (ctx.session.type === 'week')
+			await ctx.reply(await this.weatherForecastWeek(message), actionButtons())			
+
+		if (ctx.session.type === 'air')
+			await ctx.reply(await this.weatherAir(message), actionButtons())				
+
+		if (ctx.session.type === 'compare'){
+			const response = await this.weatherCompare(message)
+			if (response === `Invalid input. /help`)
+				return
+			await ctx.reply(response, actionButtons())			
 		}
-
-		// ToDO buttons logic
-		if (ctx.session.type === 'current'){
-			await ctx.reply(await this.weatherNow(message))			
-		}
-
+		
 		delete ctx.session.type
 	}
 	
@@ -56,7 +67,6 @@ export class TelebotService {
 				const latitude = message.location.latitude;
 				const longitude = message.location.longitude;
 				ctx.reply(await this.weatherByLocation(latitude, longitude))
-				//await ctx.replyWithLocation(latitude, longitude)
 			}	
 		}
 	}
@@ -71,28 +81,26 @@ export class TelebotService {
 		return `latitude = ${latitude}, longitude = ${longitude}`
 	}
 
-	async weatherForecastToday(ctx: Context){
-		if (ctx.session.type === 'today'){
-			//todo OpenWeather logic
-		}
+	private async weatherForecastToday(town: string): Promise<string>{
+		//todo OpenWeather logic
+		return town
 	}
 
-	async weatherForecastWeek(ctx: Context){
-		if (ctx.session.type === 'week'){
-			//todo OpenWeather logic
-		}
+	private async weatherForecastWeek(town: string): Promise<string>{
+		//todo OpenWeather logic
+		return town
 	}
 
-	async weatherAir(ctx: Context){
-		if (ctx.session.type === 'air'){
-			//todo OpenWeather logic
-		}
+	private async weatherAir(town: string): Promise<string>{
+		//todo OpenWeather logic
+		return town
 	}
 
-	async weatherCompare(ctx: Context){
-		if (ctx.session.type === 'air'){
-			//todo OpenWeather logic
-		}
-	}
-	
+	private async weatherCompare(towns: string): Promise<string>{
+		//todo OpenWeather logic
+		const pair: string[] = towns.split(' ')
+		if (pair.length != 2)
+			return `Invalid input. /help`
+		return `First - ${pair[0]}, Second - ${pair[1]}`
+	}	
 }
