@@ -21,12 +21,38 @@ export class TelebotUpdate {
 	
 	@Hears(Button.WEATHER_NOW)
 	async weatherNow(ctx: Context){
-		this.telebotService.weatherNow(ctx)
+		ctx.session.type = 'current';
+		this.telebotService.askTown(ctx);
 	}
 
 	@Hears(Button.WEATHER_HERE)
 	async weatherNowInLocation(ctx: Context){
-		this.telebotService.weatherNowInLocation(ctx)
+		ctx.session.type = 'location'
+		this.telebotService.askLocation(ctx)
+	}
+
+	@Hears(Button.WEATHER_FORECAST_TODAY)
+	async weatherForecastToday(ctx: Context){
+		ctx.session.type = 'today'
+		this.telebotService.askTown(ctx)
+	}
+
+	@Hears(Button.WEATHER_FORECAST_WEEK)
+	async weatherForecastWeek(ctx: Context){
+		ctx.session.type = 'week'
+		this.telebotService.askTown(ctx)
+	}
+
+	@Hears(Button.AIR_QUALITY)
+	async weatherAirQuality(ctx: Context){
+		ctx.session.type = 'week'
+		this.telebotService.askTown(ctx)
+	}
+
+	@Hears(Button.COMPARE_WEATHER)
+	async weatherCompare(ctx: Context){
+		ctx.session.type = 'compare'
+		this.telebotService.askTown(ctx)
 	}
 
 	@Hears('/help')
@@ -34,24 +60,9 @@ export class TelebotUpdate {
 		this.telebotService.helpHandler(ctx)
 	}
 
-	// @Hears('Edit')
-	// async editTask(ctx: Context){
-	// 	this.telebotService.editTask(ctx)
-	// }
-
-	// @Hears('Complete')
-	// async completeTask(ctx: Context){
-	// 	this.telebotService.completeTask(ctx)
-	// }
-
-	// @Hears('Remove')
-	// async removeTask(ctx: Context){
-	// 	this.telebotService.removeTask(ctx)
-	// }
-
 	@On('text')
 	async getMessage(@Message('text') message, @Ctx() ctx: Context){
-		await this.telebotService.MessageHandler(message, ctx)
+		await this.telebotService.messageHandler(message, ctx)
 	}
 
 	@On('location')

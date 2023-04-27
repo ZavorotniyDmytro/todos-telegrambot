@@ -11,17 +11,13 @@ export class TelebotService {
 		await ctx.reply(`Hello. Let me help you`, actionButtons().oneTime())
 	}
 
-	async weatherNow(ctx: Context){
-		ctx.session.type = 'current';
+	async askTown(ctx: Context){
 		await ctx.reply(`Okey. Please enter your town or /help`);
 	}
 
-	async weatherNowInLocation(ctx: Context)
-	{
-		ctx.session.type = 'location'
+	async askLocation(ctx: Context){
 		await ctx.reply(`Okey. Please send me your location or /help`);
 	}
-
 
 	async helpHandler(ctx: Context){
 		if (!ctx.session.type){}
@@ -37,42 +33,19 @@ export class TelebotService {
 		// todo обробити випадки пов'язані з вводом тільки одного міста
 		// ctx.reply()
 	}
-	// async editTask(ctx: Context){
-	// 	await ctx.reply(`Enter task id:`)
-		
-	// 	ctx.session.type = 'edit'
-	// }
 
-	// async completeTask(ctx: Context){
-	// 	await ctx.reply(`Enter task id:`)
-
-	// 	ctx.session.type = 'complete'
-	// }
-
-	// async removeTask(ctx: Context){
-	// 	await ctx.reply(`Enter task id:`)
-
-	// 	ctx.session.type = 'remove'
-	// }
-
-	async MessageHandler(message, ctx: Context){
+	async messageHandler(message, ctx: Context){
 		if (!ctx.session.type) return
 
 		if (ctx.session.type === 'current'){
-			await ctx.reply(this.currentWeather(message))			
-		}		
+			await ctx.reply(await this.weatherNow(message))			
+		}
 
-		// if (ctx.session.type == 'complete'){
-		// 	const todo = this.todos.find(t => t.id === id)
+		// ToDO buttons logic
+		if (ctx.session.type === 'current'){
+			await ctx.reply(await this.weatherNow(message))			
+		}
 
-		// 	if (!todo){
-		// 		ctx.deleteMessage()
-		// 		ctx.reply('Task with this ID does not exist')
-		// 		return
-		// 	}
-		// 	todo.isCompleted = !todo.isCompleted
-		// 	await ctx.reply(showTodos(this.todos))
-		// }
 		delete ctx.session.type
 	}
 	
@@ -82,14 +55,44 @@ export class TelebotService {
 			if (message.location) {
 				const latitude = message.location.latitude;
 				const longitude = message.location.longitude;
-				await ctx.reply(`x = ${latitude} y = ${longitude}`)
+				ctx.reply(await this.weatherByLocation(latitude, longitude))
+				//await ctx.replyWithLocation(latitude, longitude)
 			}	
 		}
 	}
 
-	private currentWeather(town: string): string{
-		// todo use OpenWeather API
-		return `${town}`
+	private async weatherNow(town: string): Promise<string>{		
+		//todo OpenWeather logic
+		return town
+	}
+
+	private async weatherByLocation(latitude: number, longitude: number): Promise<string>{		
+		//todo OpenWeather logic		
+		return `latitude = ${latitude}, longitude = ${longitude}`
+	}
+
+	async weatherForecastToday(ctx: Context){
+		if (ctx.session.type === 'today'){
+			//todo OpenWeather logic
+		}
+	}
+
+	async weatherForecastWeek(ctx: Context){
+		if (ctx.session.type === 'week'){
+			//todo OpenWeather logic
+		}
+	}
+
+	async weatherAir(ctx: Context){
+		if (ctx.session.type === 'air'){
+			//todo OpenWeather logic
+		}
+	}
+
+	async weatherCompare(ctx: Context){
+		if (ctx.session.type === 'air'){
+			//todo OpenWeather logic
+		}
 	}
 	
 }
