@@ -5,7 +5,6 @@ import { Telegraf } from 'telegraf';
 import { TelebotService } from './telebot.service';
 import { Context } from './context.interface';
 import { Button } from './telebot.buttons';
-import { runInThisContext } from 'vm';
 
 @Update()
 export class TelebotUpdate {

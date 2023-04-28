@@ -1,29 +1,39 @@
 
+import { date } from '@hapi/joi';
 import { Injectable } from '@nestjs/common';
 import { IWeatherData, IWeatherForecastData, WeatherService } from 'src/weather/weather.service';
 import { Message } from 'telegraf/typings/core/types/typegram';
 import { Context } from './context.interface';
 import { actionButtons } from './telebot.buttons';
 
+export enum ForecastDays {
+	DAY_0='Today:\n',
+	DAY_1='Tomorrow:\n',
+	DAY_2='After 2 days:\n',
+	DAY_3='After 3 days:\n',
+	DAY_4='After 4 days:\n',
+	DAY_5='After 5 days:\n',
+}
+
 @Injectable()
 export class TelebotService {
 	constructor(private readonly weatherService: WeatherService){}
 
-	async start(ctx: Context){
+	async start(ctx: Context):Promise<void>{
 		await ctx.reply(`Hello. Let me help you`, actionButtons().oneTime())
 	}
 
-	async askTown(ctx: Context){
+	async askTown(ctx: Context):Promise<void>{
 		await ctx.reply(`Okey. Please enter your town or /help`);
 	}
 
-	async askLocation(ctx: Context){
+	async askLocation(ctx: Context):Promise<void>{
 		await ctx.reply(`Okey. Please send me your location or /help`);
 	}
 
-	async helpHandler(ctx: Context){
+	async helpHandler(ctx: Context):Promise<void>{
 		if (!ctx.session.type){}
-			//todo оброблюємо загальний випадок
+			//todo обробити загальний випадок
 		if (ctx.session.type === 'location'){
 			ctx.reply('To send your coordinates, you need to click on the "Attach file" button (or the "File" icon on a mobile device) in a chat with the bot and select the "Location" option (or "Location" on a mobile device). After that, you can select your current location on the map that will appear in the chat window.')
 		}
@@ -36,7 +46,7 @@ export class TelebotService {
 		// ctx.reply()
 	}
 
-	async messageHandler(message: string, ctx: Context){
+	async messageHandler(message: string, ctx: Context):Promise<void>{
 		if (!ctx.session.type) 
 			await ctx.reply(await this.weatherNow(message), actionButtons())
 
@@ -62,7 +72,7 @@ export class TelebotService {
 		delete ctx.session.type
 	}
 	
-	async locationHandler(ctx: Context){
+	async locationHandler(ctx: Context):Promise<void>{
 		if (ctx.session.type === 'location'){
 			const message = ctx.message as Message.LocationMessage;
 			if (message.location) {
@@ -105,20 +115,34 @@ export class TelebotService {
 		return this.weatherForecastMessage(intervals, town)
 	}
 
+	
 	private weatherForecastMessage(intervals: IWeatherForecastData[], town:string): string{
 		let message: string = `In ${town}:\n`
-		for (let i = 0; i < Math.floor(intervals.length / 8); i++){
-			switch (i) {
-				case 1:	message+='Today:\n'; break;
-				case 2:	message+='Tomorrow:\n'; break;
-				case 3:	message+='After 2 days:\n'; break;
-				case 4:	message+='After 3 days:\n'; break;
-				case 5:	message+='After 4 days:\n'; break;
-				default:	break;
-			}
+		message+=ForecastDays.DAY_0
+		for (let i = 0, k = 1; i < Math.floor(intervals.length / 8);i++){
 			for (let j = 0; j < 8; j++){
 				const interval = intervals[i*8+j]
-				message+= `${interval.slice_timestamp_string} - ${interval.temp}°C, ${interval.weather_description}\n`
+
+				if (i*8+j){
+					const previous = new Date(intervals[i*8+j-1].slice_timestamp*1000)
+					const current = new Date(interval.slice_timestamp*1000)
+					
+					if (previous.toDateString() !== current.toDateString()){
+						switch (k) {
+							case 1:	message+=ForecastDays.DAY_1; break;
+							case 2:	message+=ForecastDays.DAY_2; break;
+							case 3:	message+=ForecastDays.DAY_3; break;
+							case 4:	message+=ForecastDays.DAY_4; break;
+							case 5:	message+=ForecastDays.DAY_5; break;
+							default:	break;
+						}
+						k++
+					}
+				}
+				const date = new Date(interval.slice_timestamp*1000)
+				let hours = date.getHours().toString();
+				(hours.length == 1)?hours='0'+hours:hours
+				message+= `${date.toDateString()}, ${hours}:00 - ${interval.temp}°C, ${interval.weather_description}\n`
 			}
 		}
 		return message
