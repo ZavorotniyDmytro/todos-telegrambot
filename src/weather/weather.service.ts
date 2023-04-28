@@ -8,9 +8,16 @@ export interface IWeatherData{
 	temp: number
 	feels_like: number
 	pressure: number
-	sunrise: number
-	sunset: number
+	sunrise?: number
+	sunset?: number
 	name: string
+}
+
+export interface IWeatherForecastData{
+	slice_timestamp: number
+	slice_timestamp_string: string
+	temp: number
+	weather_description: string
 }
 
 @Injectable()
@@ -23,6 +30,7 @@ export class WeatherService {
 		this.baseUrl = this.configService.get('OPENWEATHERMAP_BASE_URL');
 	}
 
+	// location button
 	async getWeatherByLocation(latitude: number, longitude: number): Promise<IWeatherData>{
 		const url = `${this.baseUrl}/weather?lat=${latitude}&lon=${longitude}&appid=${this.apiKey}&units=metric`;
 		try {
@@ -34,16 +42,26 @@ export class WeatherService {
 		}
 	}
 
+	// weather now button
 	async getWeatherByCityName(cityName: string): Promise<IWeatherData> {
-		const url = `${this.baseUrl}/weather?q=${encodeURIComponent(
-		  cityName,
-		)}&appid=${this.apiKey}&units=metric`;
+		const url = `${this.baseUrl}/weather?q=${cityName}&appid=${this.apiKey}&units=metric`;
 		try {
 		  const response: AxiosResponse = await axios.get(url);
 		  return this.getData(response);
 		} catch (error) {
 		  console.error(error);
 		}
+	}
+
+	async getWeatherForecast(cityName: string, days = 1):Promise<IWeatherForecastData[]>{
+		const url = `${this.baseUrl}/forecast?q=${cityName}&cnt=${days*8}&units=metric&appid=${this.apiKey}`;
+		 try {	
+			const response: AxiosResponse = await axios.get(url);			
+
+			return this.getForecastData(response)
+		 } catch (error) {
+			console.error(error); 
+		 }
 	}
 
 	private getData(response: AxiosResponse): IWeatherData{
@@ -61,5 +79,21 @@ export class WeatherService {
 			name: response.data.name,
 		};
 		return data
+	}
+
+	private getForecastData(response: AxiosResponse): IWeatherForecastData[]{
+		let weatherDatas: IWeatherForecastData[] = []
+		for(let i = 0; i < response.data.cnt; i++)
+		{
+			const slice = response.data.list[i]
+
+			weatherDatas.push({
+				slice_timestamp: slice.dt,
+				slice_timestamp_string: slice.dt_txt,
+				temp: slice.main.temp,
+				weather_description: slice.weather[0].description,
+			})
+		}
+		return weatherDatas
 	}
 }

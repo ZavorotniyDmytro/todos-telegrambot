@@ -1,5 +1,6 @@
+
 import { Injectable } from '@nestjs/common';
-import { IWeatherData, WeatherService } from 'src/weather/weather.service';
+import { IWeatherData, IWeatherForecastData, WeatherService } from 'src/weather/weather.service';
 import { Message } from 'telegraf/typings/core/types/typegram';
 import { Context } from './context.interface';
 import { actionButtons } from './telebot.buttons';
@@ -94,14 +95,33 @@ export class TelebotService {
 		Sunset - ${sunset.getHours()+':'+sunset.getMinutes()+', '+sunset.toDateString()}`
 	}
 
-	private async weatherForecastToday(town: string): Promise<string>{
-		//todo OpenWeather logic
-		return town
+	private async weatherForecastToday(town: string): Promise<string>{		
+		const intervals: IWeatherForecastData[] = await this.weatherService.getWeatherForecast(town)
+		return this.weatherForecastMessage(intervals, town)
 	}
 
 	private async weatherForecastWeek(town: string): Promise<string>{
-		//todo OpenWeather logic
-		return town
+		const intervals: IWeatherForecastData[] = await this.weatherService.getWeatherForecast(town, 5)
+		return this.weatherForecastMessage(intervals, town)
+	}
+
+	private weatherForecastMessage(intervals: IWeatherForecastData[], town:string): string{
+		let message: string = `In ${town}:\n`
+		for (let i = 0; i < Math.floor(intervals.length / 8); i++){
+			switch (i) {
+				case 1:	message+='Today:\n'; break;
+				case 2:	message+='Tomorrow:\n'; break;
+				case 3:	message+='After 2 days:\n'; break;
+				case 4:	message+='After 3 days:\n'; break;
+				case 5:	message+='After 4 days:\n'; break;
+				default:	break;
+			}
+			for (let j = 0; j < 8; j++){
+				const interval = intervals[i*8+j]
+				message+= `${interval.slice_timestamp_string} - ${interval.temp}°C, ${interval.weather_description}\n`
+			}
+		}
+		return message
 	}
 
 	private async weatherAir(town: string): Promise<string>{
