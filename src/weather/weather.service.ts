@@ -20,6 +20,42 @@ export interface IWeatherForecastData{
 	weather_description: string
 }
 
+export interface IAirQualityData{
+	time: number
+	air_quality_index: 1 | 2 | 3 | 4 | 5
+	co: number
+	no: number
+	no2: number
+	o3: number
+	so2: number
+	pm2_5: number
+	pm10: number
+	nh3: number
+}
+
+export enum AirQualityComponents{
+	CO = 'Carbon monoxide',
+	NO = 'Nitrogen monoxide',
+	NO2 = 'Nitrogen dioxide',
+	O3 = 'Ozone',
+	SO2 = 'Sulphur dioxide',
+	PM2_5 = 'Fine particles',
+	PM10 = 'Coarse solids',
+	NH3 = 'Ammonium',
+}
+
+export function airQualityIndexToString(index: 1 | 2 | 3 | 4 | 5): string{
+	let result = undefined
+	switch (index) {
+		case 1: result = 'Good'; break;
+		case 2: result = 'Fair'; break;
+		case 3: result = 'Moderate'; break;
+		case 4: result = 'Poor'; break;
+		case 5: result = 'Very Poor'; break;		
+	}
+	return result
+}
+
 @Injectable()
 export class WeatherService {
 	private readonly apiKey: string;
@@ -62,6 +98,35 @@ export class WeatherService {
 		 } catch (error) {
 			console.error(error); 
 		 }
+	}
+
+	async getAirQuality(latitude: number, longitude: number): Promise<IAirQualityData>{
+		const url = `${this.baseUrl}/air_pollution?lat=${latitude}&lon=${longitude}&appid=${this.apiKey}`;
+		try {	
+			const response: AxiosResponse = await axios.get(url);			
+
+			return this.getAirQualityData(response)
+		} catch (error) {
+			console.error(error); 
+		}
+		
+	}
+
+	private getAirQualityData(response: AxiosResponse):IAirQualityData{
+		const data = response.data.list[0]
+		const airQualityData: IAirQualityData = {
+			time: data.dt,
+			air_quality_index: data.main.aqi,
+			co: data.components.co,
+			no: data.components.no,
+			no2: data.components.no2,
+			o3: data.components.o3,
+			so2: data.components.so2,
+			pm2_5: data.components.pm2_5,
+			pm10: data.components.pm10,
+			nh3: data.components.nh3,
+		}
+		return airQualityData
 	}
 
 	private getData(response: AxiosResponse): IWeatherData{

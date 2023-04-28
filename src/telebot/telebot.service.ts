@@ -1,7 +1,7 @@
 
 import { date } from '@hapi/joi';
 import { Injectable } from '@nestjs/common';
-import { IWeatherData, IWeatherForecastData, WeatherService } from 'src/weather/weather.service';
+import { AirQualityComponents, airQualityIndexToString, IAirQualityData, IWeatherData, IWeatherForecastData, WeatherService } from 'src/weather/weather.service';
 import { Message } from 'telegraf/typings/core/types/typegram';
 import { Context } from './context.interface';
 import { actionButtons } from './telebot.buttons';
@@ -33,8 +33,8 @@ export class TelebotService {
 
 	async helpHandler(ctx: Context):Promise<void>{
 		if (!ctx.session.type){}
-			//todo обробити загальний випадок
-		if (ctx.session.type === 'location'){
+			//todo обробити загальний випадок + .actionButtons()
+		if (ctx.session.type === 'location' || ctx.session.type === 'air'){
 			ctx.reply('To send your coordinates, you need to click on the "Attach file" button (or the "File" icon on a mobile device) in a chat with the bot and select the "Location" option (or "Location" on a mobile device). After that, you can select your current location on the map that will appear in the chat window.')
 		}
 
@@ -48,7 +48,7 @@ export class TelebotService {
 
 	async messageHandler(message: string, ctx: Context):Promise<void>{
 		if (!ctx.session.type) 
-			await ctx.reply(await this.weatherNow(message), actionButtons())
+			await this.helpHandler(ctx)
 
 		if (ctx.session.type === 'current')
 			await ctx.reply(await this.weatherNow(message), actionButtons())				
@@ -58,9 +58,6 @@ export class TelebotService {
 
 		if (ctx.session.type === 'week')
 			await ctx.reply(await this.weatherForecastWeek(message), actionButtons())			
-
-		if (ctx.session.type === 'air')
-			await ctx.reply(await this.weatherAir(message), actionButtons())				
 
 		if (ctx.session.type === 'compare'){
 			const response = await this.weatherCompare(message)
@@ -73,11 +70,21 @@ export class TelebotService {
 	}
 	
 	async locationHandler(ctx: Context):Promise<void>{
+		if (ctx.session.type === 'air'){
+			const message = ctx.message as Message.LocationMessage;
+			if (message.location) {
+				const latitude = message.location.latitude;
+				const longitude = message.location.longitude;
+				ctx.reply(await this.weatherAir(latitude, longitude))
+			}			
+		}
+			
 		if (ctx.session.type === 'location'){
 			const message = ctx.message as Message.LocationMessage;
 			if (message.location) {
 				const latitude = message.location.latitude;
 				const longitude = message.location.longitude;
+				ctx.replyWithLocation(latitude, longitude)
 				ctx.reply(await this.weatherByLocation(latitude, longitude))
 			}	
 		}
@@ -148,16 +155,32 @@ export class TelebotService {
 		return message
 	}
 
-	private async weatherAir(town: string): Promise<string>{
-		//todo OpenWeather logic
-		return town
+	private async weatherAir(latitude: number, longitude: number): Promise<string>{
+		const airQuality: IAirQualityData = await this.weatherService.getAirQuality(latitude, longitude)
+		return this.airQuelityMessage(airQuality)
+	}
+
+	private airQuelityMessage(airQuality: IAirQualityData): string{
+		const message:string = ` Air quality in this location:
+		Air quality index - ${airQuality.air_quality_index} (${airQualityIndexToString(airQuality.air_quality_index)})
+		Concentration of CO (${AirQualityComponents.CO}): ${airQuality.co} μg/m3
+		Concentration of NO (${AirQualityComponents.NO}): ${airQuality.no} μg/m3
+		Concentration of NO2 (${AirQualityComponents.NO2}): ${airQuality.no2} μg/m3
+		Concentration of O3 (${AirQualityComponents.O3}): ${airQuality.o3} μg/m3
+		Concentration of SO2 (${AirQualityComponents.SO2}): ${airQuality.so2} μg/m3
+		Concentration of PM 2.5 (${AirQualityComponents.PM2_5}): ${airQuality.pm2_5} μg/m3
+		Concentration of PM 10 (${AirQualityComponents.PM10}): ${airQuality.pm10} μg/m3
+		Concentration of NH3 (${AirQualityComponents.NH3}): ${airQuality.nh3} μg/m3`
+		return message
 	}
 
 	private async weatherCompare(towns: string): Promise<string>{
-		//todo OpenWeather logic
 		const pair: string[] = towns.split(' ')
-		if (pair.length != 2)
+		if (pair.length != 2){
 			return `Invalid input. /help`
-		return `First - ${pair[0]}, Second - ${pair[1]}`
-	}	
+		}
+		const firstCity = this.weatherService.getWeatherByCityName(pair[0])
+		const secondCity = this.weatherService.getWeatherByCityName(pair[1])
+		return ``
+	}
 }

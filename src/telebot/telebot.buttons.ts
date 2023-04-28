@@ -24,15 +24,3 @@ export function actionButtons(){
 	})
 	.resize();
 }
-
-export enum ButtonChoice {
-	BY_CITY_NAME = 'By city name',
-	BY_LOCATION = 'By location',
-}
-
-export function inlineChoiceButtons(){
-	return Markup.inlineKeyboard([
-		Markup.button.callback(ButtonChoice.BY_CITY_NAME, '/city'),
-		Markup.button.callback(ButtonChoice.BY_LOCATION, '/location')
-	])
-}

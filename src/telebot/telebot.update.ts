@@ -45,7 +45,7 @@ export class TelebotUpdate {
 	@Hears(Button.AIR_QUALITY)
 	async weatherAirQuality(ctx: Context){
 		ctx.session.type = 'air'
-		this.telebotService.askTown(ctx)
+		this.telebotService.askLocation(ctx)
 	}
 
 	@Hears(Button.COMPARE_WEATHER)
