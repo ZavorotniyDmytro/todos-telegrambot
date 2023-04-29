@@ -1,60 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosResponse } from 'axios';
-
-export interface IWeatherData{
-	weather: string
-	weather_description: string
-	temp: number
-	feels_like: number
-	pressure: number
-	sunrise?: number
-	sunset?: number
-	name: string
-}
-
-export interface IWeatherForecastData{
-	slice_timestamp: number
-	slice_timestamp_string: string
-	temp: number
-	weather_description: string
-}
-
-export interface IAirQualityData{
-	time: number
-	air_quality_index: 1 | 2 | 3 | 4 | 5
-	co: number
-	no: number
-	no2: number
-	o3: number
-	so2: number
-	pm2_5: number
-	pm10: number
-	nh3: number
-}
-
-export enum AirQualityComponents{
-	CO = 'Carbon monoxide',
-	NO = 'Nitrogen monoxide',
-	NO2 = 'Nitrogen dioxide',
-	O3 = 'Ozone',
-	SO2 = 'Sulphur dioxide',
-	PM2_5 = 'Fine particles',
-	PM10 = 'Coarse solids',
-	NH3 = 'Ammonium',
-}
-
-export function airQualityIndexToString(index: 1 | 2 | 3 | 4 | 5): string{
-	let result = undefined
-	switch (index) {
-		case 1: result = 'Good'; break;
-		case 2: result = 'Fair'; break;
-		case 3: result = 'Moderate'; break;
-		case 4: result = 'Poor'; break;
-		case 5: result = 'Very Poor'; break;		
-	}
-	return result
-}
+import { IAirQualityData, IWeatherData, IWeatherForecastData } from './weather.interface';
 
 @Injectable()
 export class WeatherService {
@@ -66,38 +13,36 @@ export class WeatherService {
 		this.baseUrl = this.configService.get('OPENWEATHERMAP_BASE_URL');
 	}
 
-	// location button
 	async getWeatherByLocation(latitude: number, longitude: number): Promise<IWeatherData>{
 		const url = `${this.baseUrl}/weather?lat=${latitude}&lon=${longitude}&appid=${this.apiKey}&units=metric`;
 		try {
 		const response: AxiosResponse = await axios.get(url);
 
-		return this.getData(response)
+		return this.getWeatherData(response)
 		} catch (error) {
 			console.error(error);
 		}
 	}
 
-	// weather now button
 	async getWeatherByCityName(cityName: string): Promise<IWeatherData> {
 		const url = `${this.baseUrl}/weather?q=${cityName}&appid=${this.apiKey}&units=metric`;
 		try {
-		  const response: AxiosResponse = await axios.get(url);
-		  return this.getData(response);
+			const response: AxiosResponse = await axios.get(url);
+			return this.getWeatherData(response);
 		} catch (error) {
-		  console.error(error);
+		  	console.error(error);
 		}
 	}
 
 	async getWeatherForecast(cityName: string, days = 1):Promise<IWeatherForecastData[]>{
 		const url = `${this.baseUrl}/forecast?q=${cityName}&cnt=${days*8}&units=metric&appid=${this.apiKey}`;
-		 try {	
+		try {	
 			const response: AxiosResponse = await axios.get(url);			
 
 			return this.getForecastData(response)
-		 } catch (error) {
+		} catch (error) {
 			console.error(error); 
-		 }
+		}
 	}
 
 	async getAirQuality(latitude: number, longitude: number): Promise<IAirQualityData>{
@@ -129,7 +74,7 @@ export class WeatherService {
 		return airQualityData
 	}
 
-	private getData(response: AxiosResponse): IWeatherData{
+	private getWeatherData(response: AxiosResponse): IWeatherData{
 		const { main } = response.data;
 		const { sys } = response.data;
 

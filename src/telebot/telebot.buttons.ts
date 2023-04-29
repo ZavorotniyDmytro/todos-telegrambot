@@ -1,14 +1,5 @@
 import { Markup } from "telegraf";
-
-export enum Button {
-	WEATHER_NOW = 'Weather now',
-	WEATHER_HERE = 'Weather in my location',
-	WEATHER_FORECAST_WEEK = 'Weekly forecast',
-	WEATHER_FORECAST_TODAY = 'Forecast for today',
-	AIR_QUALITY = 'Air quality',
-	COMPARE_WEATHER = 'Compare weather',
-	HELP = 'Help'
-}
+import { Button } from "./telebot.enum";
 
 export function actionButtons(){
 	return Markup.keyboard([

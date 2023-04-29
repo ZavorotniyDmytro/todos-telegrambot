@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { TelebotUpdate } from './telebot.update';
 import { TelebotService } from './telebot.service';
 import { WeatherModule } from 'src/weather/weather.module';
+import { MessageService } from './message.service';
 
 const session = new LocalSession({database: 'session_db.json'})
 
@@ -20,6 +21,6 @@ const session = new LocalSession({database: 'session_db.json'})
 		WeatherModule,	
 	],
 	controllers: [],
-	providers: [TelebotService, TelebotUpdate],
+	providers: [TelebotService, MessageService, TelebotUpdate],
 })
 export class TelebotModule {}

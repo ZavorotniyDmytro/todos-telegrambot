@@ -1,10 +1,8 @@
-
-
 import { Ctx, Hears, InjectBot, Message, On, Start, Update } from 'nestjs-telegraf';
 import { Telegraf } from 'telegraf';
 import { TelebotService } from './telebot.service';
 import { Context } from './context.interface';
-import { Button } from './telebot.buttons';
+import { Button } from "./telebot.enum";
 
 @Update()
 export class TelebotUpdate {
