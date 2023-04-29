@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
 import { TelebotModule } from './telebot/telebot.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
 	imports: [
@@ -16,6 +17,7 @@ import { TelebotModule } from './telebot/telebot.module';
 			})
 		}),
 		TelebotModule,
+		DatabaseModule,
 	],
 	controllers: [],
 	providers: [ConfigService],
