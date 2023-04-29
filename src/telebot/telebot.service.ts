@@ -1,30 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { SelectedCity } from 'src/entity/cities.entity';
 import { IAirQualityData, IWeatherData, IWeatherForecastData } from 'src/weather/weather.interface';
 import { WeatherService } from 'src/weather/weather.service';
 import { Message } from 'telegraf/typings/core/types/typegram';
-import { Repository } from 'typeorm';
 import { Context } from './context.interface';
 import { MessageService } from './message.service';
-import { actionButtons } from './telebot.buttons';
+import { SelectedCityService } from './selectedCity.service';
+import { ActionButtons, CitiesButtons } from './telebot.buttons';
 
 @Injectable()
 export class TelebotService {
 	constructor(private readonly weatherService: WeatherService,
 					private readonly messageService: MessageService,
-					@InjectRepository(SelectedCity) 
-					private readonly selectedCityRepository: Repository<SelectedCity>){}
+					private readonly selectedCityService: SelectedCityService){}
 
 	async start(ctx: Context):Promise<void>{
-		await ctx.reply(`Hello. Let me help you`, actionButtons().oneTime())
+		await ctx.reply(`Hello. Let me help you`, ActionButtons())
 	}
 
 	async askTown(ctx: Context):Promise<void>{
-		// todo відправити ctx у функцію, яка дістане з ctx user_id та знайде міста, які користувач вже вводив
-		// todo створити actionsButtuns по переданим в нього містам
-		// todo повертати actionsButtuns, де будуть міста, які до цього вводив користувач		
-		await ctx.reply(`Okey. Please enter your town or /help`);
+		const cities = await this.selectedCityService.getSelectedCitiesByUserId(ctx.from.id)
+		await ctx.reply(`Okey. Please enter your town or /help`, CitiesButtons(cities));
 	}
 
 	async askLocation(ctx: Context):Promise<void>{
@@ -33,7 +28,7 @@ export class TelebotService {
 
 	async helpHandler(ctx: Context):Promise<void>{
 		if (!ctx.session.type){
-			ctx.reply(`To start, enter /start and click on one of the offered buttons`, actionButtons())
+			ctx.reply(`To start, enter /start and click on one of the offered buttons`, ActionButtons())
 		}
 
 		if (ctx.session.type === 'location' || ctx.session.type === 'air'){
@@ -54,25 +49,25 @@ export class TelebotService {
 			await this.helpHandler(ctx)
 
 		if (ctx.session.type === 'current'){
-			// todo WAY2 - відправляємо ctx та message в функцію, яка зберігає введені міста
-			await ctx.reply(await this.weatherNow(message), actionButtons())
+			this.selectedCityService.addSelectedCity(ctx.from.id, message)
+			await ctx.reply(await this.weatherNow(message), ActionButtons())
 		}		
 
 		if (ctx.session.type === 'today'){
-			// todo WAY2 - відправляємо ctx та message в функцію, яка зберігає введені міста
-			await ctx.reply(await this.weatherForecastToday(message), actionButtons())			
+			this.selectedCityService.addSelectedCity(ctx.from.id, message)
+			await ctx.reply(await this.weatherForecastToday(message), ActionButtons())			
 		}
 
 		if (ctx.session.type === 'week'){
-			// todo WAY2 - відправляємо ctx та message в функцію, яка зберігає введені міста
-			await ctx.reply(await this.weatherForecastWeek(message), actionButtons())	
+			this.selectedCityService.addSelectedCity(ctx.from.id, message)
+			await ctx.reply(await this.weatherForecastWeek(message), ActionButtons())	
 		}		
 
 		if (ctx.session.type === 'compare'){
 			const response = await this.weatherCompare(message)
 			if (response === `Invalid input. /help`)
 				return
-			await ctx.reply(response, actionButtons())			
+			await ctx.reply(response, ActionButtons())			
 		}
 		
 		delete ctx.session.type

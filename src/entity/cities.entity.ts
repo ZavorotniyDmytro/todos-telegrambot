@@ -1,5 +1,7 @@
-import { Column, CreateDateColumn, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+@Entity()
 export class SelectedCity {
   @PrimaryGeneratedColumn()
   id: number
@@ -19,6 +21,6 @@ export class SelectedCity {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date
 
-  @Index(['user_telegram_id', 'city_name'], { unique: true })
-  userAndCityIndex: string;
+//   @Index(['user_telegram_id', 'city_name'], { unique: true })
+//   userAndCityIndex: string;
 }

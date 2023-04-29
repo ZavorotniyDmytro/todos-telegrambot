@@ -8,6 +8,7 @@ import { WeatherModule } from 'src/weather/weather.module';
 import { MessageService } from './message.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SelectedCity } from 'src/entity/cities.entity';
+import { SelectedCityService } from './selectedCity.service';
 
 const session = new LocalSession({database: 'session_db.json'})
 
@@ -24,6 +25,6 @@ const session = new LocalSession({database: 'session_db.json'})
 		WeatherModule,	
 	],
 	controllers: [],
-	providers: [TelebotService, MessageService, TelebotUpdate],
+	providers: [TelebotService, MessageService, TelebotUpdate, SelectedCityService],
 })
 export class TelebotModule {}

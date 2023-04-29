@@ -17,13 +17,14 @@
       "id": "834834675:834834675",
       "data": {
         "__scenes": {},
-        "type": "air"
+        "type": "current"
       }
     },
     {
       "id": "371789037:371789037",
       "data": {
-        "__scenes": {}
+        "__scenes": {},
+        "type": "current"
       }
     }
   ]
