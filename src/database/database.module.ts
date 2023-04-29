@@ -2,8 +2,6 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-
-
 @Module({
 	imports: [
 		TypeOrmModule.forRootAsync({
@@ -18,6 +16,9 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 					database: configService.get<string>('POSTGRES_DB'),
 					entities: [__dirname + '/../**/*.entity{.ts,.js}'],
 					migrations: [__dirname + '/../**/*.migration{.ts,.js}'],
+					cli: {
+						migrationsDir: "src/migrations"
+					},
         			// migrationsRun: true,
 					synchronize: true,
 				}),			
