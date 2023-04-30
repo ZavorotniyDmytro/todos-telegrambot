@@ -22,6 +22,10 @@ export class TelebotService {
 		await ctx.reply(`Okey. Please enter your town or /help`, CitiesButtons(cities));
 	}
 
+	async askTowns(ctx: Context):Promise<void>{		
+		await ctx.reply(`Okey. Please enter your cities separated by a space or /help`);
+	}
+
 	async askLocation(ctx: Context):Promise<void>{
 		await ctx.reply(`Okey. Please send me your location or /help`);
 	}
@@ -88,7 +92,6 @@ export class TelebotService {
 			if (message.location) {
 				const latitude = message.location.latitude;
 				const longitude = message.location.longitude;
-				ctx.replyWithLocation(latitude, longitude)
 				ctx.reply(await this.weatherNowByLocation(latitude, longitude))
 			}	
 		}

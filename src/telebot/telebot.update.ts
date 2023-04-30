@@ -49,7 +49,7 @@ export class TelebotUpdate {
 	@Hears(Button.COMPARE_WEATHER)
 	async weatherCompare(ctx: Context){
 		ctx.session.type = 'compare'
-		this.telebotService.askTown(ctx)
+		this.telebotService.askTowns(ctx)
 	}
 
 	@Hears('/help')
