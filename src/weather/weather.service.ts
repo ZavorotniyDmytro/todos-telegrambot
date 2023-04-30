@@ -84,8 +84,8 @@ export class WeatherService {
 			temp: main.temp, 
 			feels_like: main.feels_like,
 			pressure: main.pressure,
-			sunrise: sys.sunrise,
-			sunset: sys.sunset,
+			sunrise: sys.sunrise + response.data.timezone,
+			sunset: sys.sunset + response.data.timezone,
 			name: response.data.name,
 		};
 		return data

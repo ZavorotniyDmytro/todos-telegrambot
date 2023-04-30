@@ -124,6 +124,9 @@ export class TelebotService {
 
 	private async weatherCompare(towns: string): Promise<string>{
 		const pair: string[] = towns.split(' ')
+
+		// TODO fix bug, when towns mb "London Nova Odesa", where after towns.split will be ['London', 'Nova', 'Odesa']. must be ['London', 'Nova Odesa'] 
+		// TODO use two messages to write cities OR use "" to mark city
 		if (pair.length != 2){
 			return `Invalid input. /help`
 		}

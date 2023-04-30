@@ -15,10 +15,23 @@ export class MessageService {
 		Temperature - ${data.temp}°C
 		Feels like - ${data.feels_like}°C
 		Pressure - ${data.pressure} Pa
-		Sunrise - ${sunrise.getHours()+':'+sunrise.getMinutes()+', '+sunrise.toDateString()}
-		Sunset - ${sunset.getHours()+':'+sunset.getMinutes()+', '+sunset.toDateString()}`
+		Sunrise - ${this.formatDate(sunrise)}
+		Sunset - ${this.formatDate(sunset)}`
 	}
 	
+	private formatDate(date: Date) {
+		let hours = date.getHours();
+		let minutes = date.getMinutes();
+		let hoursString = date.getHours().toString(),minutesString = date.getMinutes().toString();
+		if (hours < 10) {
+		   hoursString = "0" + hours;
+		}
+		if (minutes < 10) {
+		  minutesString = "0" + minutes;
+		}
+		return `${hoursString}:${minutesString}, ${date.toDateString()}`;
+	 }
+
 	weatherForecastMessage(intervals: IWeatherForecastData[], town:string): string{
 		let message: string = `In ${town}:\n`
 		message+=ForecastDays.DAY_0
