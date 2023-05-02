@@ -19,7 +19,10 @@ export class TelebotService {
 
 	async askTown(ctx: Context):Promise<void>{
 		const cities = await this.selectedCityService.getSelectedCitiesByUserId(ctx.from.id)
-		await ctx.reply(`Okey. Please enter your town or /help`, CitiesButtons(cities));
+		if (cities.length === 0)
+			await ctx.reply(`Okey. Please enter your town or /help`, ActionButtons());
+		else
+			await ctx.reply(`Okey. Please enter your town or /help`, CitiesButtons(cities));
 	}
 
 	async askTowns(ctx: Context):Promise<void>{		

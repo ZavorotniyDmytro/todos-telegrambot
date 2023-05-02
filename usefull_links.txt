@@ -13,3 +13,5 @@ https://docs.docker.com/compose/
 
 https://wanago.io/
 
+https://openweathermap.org/api
+
