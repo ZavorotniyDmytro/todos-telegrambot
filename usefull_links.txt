@@ -15,3 +15,7 @@ https://wanago.io/
 
 https://openweathermap.org/api
 
+https://nestjs-telegraf.vercel.app/
+
+https://www.youtube.com/watch?v=6UjDqjkAMe8&ab_channel=REDGroup
+

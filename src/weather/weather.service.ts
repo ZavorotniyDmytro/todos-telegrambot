@@ -53,8 +53,7 @@ export class WeatherService {
 			return this.getAirQualityData(response)
 		} catch (error) {
 			console.error(error); 
-		}
-		
+		}		
 	}
 
 	private getAirQualityData(response: AxiosResponse):IAirQualityData{

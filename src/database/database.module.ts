@@ -15,16 +15,18 @@ import { SelectedCity } from "src/entity/cities.entity";
 				username: configService.get<string>('POSTGRES_USER'),
 				password: configService.get<string>('POSTGRES_PASSWORD'),
 				database: configService.get<string>('POSTGRES_DB'),
-				entities: [__dirname + '/../**/*.entity{.ts,.js}', SelectedCity],//'
-				// autoLoadEntities: true,
-				// migrations: [__dirname + '/../**/*.migration{.ts,.js}'],
-				// cli: {
-				// 	migrationsDir: "src/migrations"
-				// },
-        		// migrationsRun: true,
+				entities: [__dirname + '/../**/*.entity{.ts,.js}', SelectedCity],
 				synchronize: true,
 			}),			
 		}),		
 	]
 })
 export class DatabaseModule { }
+
+//'
+				// autoLoadEntities: true,
+				// migrations: [__dirname + '/../**/*.migration{.ts,.js}'],
+				// cli: {
+				// 	migrationsDir: "src/migrations"
+				// },
+        		// migrationsRun: true,

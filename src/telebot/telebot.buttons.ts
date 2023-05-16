@@ -10,11 +10,7 @@ export function ActionButtons(){
 		Markup.button.callback(Button.WEATHER_FORECAST_WEEK, '/week'),
 		Markup.button.callback(Button.AIR_QUALITY, '/air'),
 		Markup.button.callback(Button.COMPARE_WEATHER, '/compare'),
-	],
-	{
-		columns: 2,
-	})
-	.resize();
+	], { columns: 2, }).resize();
 }
 
 export function CitiesButtons(cities: SelectedCity[]){
@@ -24,3 +20,4 @@ export function CitiesButtons(cities: SelectedCity[]){
 	}
 	return Markup.keyboard(citiesButtons, {columns: 2}).resize()
 }
+

@@ -9,6 +9,7 @@ import { ActionButtons, CitiesButtons } from './telebot.buttons';
 
 @Injectable()
 export class TelebotService {
+
 	constructor(private readonly weatherService: WeatherService,
 					private readonly messageService: MessageService,
 					private readonly selectedCityService: SelectedCityService){}
@@ -20,7 +21,7 @@ export class TelebotService {
 	async askTown(ctx: Context):Promise<void>{
 		const cities = await this.selectedCityService.getSelectedCitiesByUserId(ctx.from.id)
 		if (cities.length === 0)
-			await ctx.reply(`Okey. Please enter your town or /help`, ActionButtons());
+			await ctx.reply(`Okey. Please enter your town or /help`);
 		else
 			await ctx.reply(`Okey. Please enter your town or /help`, CitiesButtons(cities));
 	}
@@ -74,7 +75,7 @@ export class TelebotService {
 			const response = await this.weatherCompare(message)
 			if (response === `Invalid input. /help`)
 				return
-			await ctx.reply(response, ActionButtons())			
+			await ctx.reply(response, ActionButtons())
 		}
 		
 		delete ctx.session.type

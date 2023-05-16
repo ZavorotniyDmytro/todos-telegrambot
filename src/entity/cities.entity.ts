@@ -20,7 +20,5 @@ export class SelectedCity {
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date
-
-//   @Index(['user_telegram_id', 'city_name'], { unique: true })
-//   userAndCityIndex: string;
 }
+
